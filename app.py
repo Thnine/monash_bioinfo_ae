@@ -37,6 +37,14 @@ def calc():
     return jsonify(score)
 
 
+@app.route("/upload_CT", methods=['POST'])
+def upload_CT():
+
+    
+
+    return 'ok'
+
+
 
 if __name__ == '__main__':
     app.run()
