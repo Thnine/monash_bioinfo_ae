@@ -40,7 +40,7 @@ def read_image(img_path, transformation=None):
     return img
 
 
-def calculate():
+def calculate(id,clinical_data,CT_list):
 
     test_aug2 = torchvision.transforms.Compose([
         transforms.Resize([384, 384]),
@@ -59,56 +59,53 @@ def calculate():
         params[name] = param.detach().cpu().numpy()
 
     # load CT images
-    files = glob.glob(os.path.join('./data/M0001', '*', '*.dcm'))
-    files = sorted(files)
-
     CT_images = []
-    for file in files[2:]:
-        img = read_image(file, None)[None, :]
+    for CT_name in CT_list:
+        img = read_image(f"./data/CT/{id}/{CT_name}.dcm", None)[None, :]
         CT_images.append(img)
     CT_images = torch.cat(CT_images, dim=1)
     CT_images = test_aug2(CT_images)
 
-    gender = [0]  # male = 0, female = 1
-    age = [64.0]  # age
-    history_of_diabetes = [0]  # without = 0, with = 1
-    history_of_hypertension = [1]  # without = 0, with = 1
-    smoking_history = [1]  # without = 0, with = 1
+    gender = clinical_data['gender']  # male = 0, female = 1
+    age = clinical_data['age']  # age
+    history_of_diabetes = clinical_data['history_of_diabetes']  # without = 0, with = 1
+    history_of_hypertension = clinical_data['history_of_hypertension']  # without = 0, with = 1
+    smoking_history = clinical_data['smoking_history']  # without = 0, with = 1
 
-    drinking_history = [0, 0, 0, 1]  # without = [1, 0, 0, 0]; sometimes = [0, 1, 0, 0]; frequently = [0, 0, 1, 0]; else = [0, 0, 0, 1]
-    family_history_of_tumor = [0]  # without = 0, with = 1
-    pathological_stage = [0, 1, 0, 0, 0]  # I = [1, 0, 0, 0, 0], II = [0, 1, 0, 0, 0]; III = [0, 0, 1, 0, 0]; IV = [0, 0, 0, 1, 0]; else = [0, 0, 0, 0, 1]
-    perineural_invasion = [0, 0, 1]  # without = [1, 0, 0], with = [0, 1, 0], else = [0, 0, 1]
-    pathological_type = [1, 0, 0, 0]  # well = [1, 0, 0, 0], mix = [0, 1, 0, 0], poor = [0, 0, 1, 0], else = [0, 0, 0, 1]
-    position = [1, 0, 0, 0]  # RCC = [1, 0, 0, 0]; LCC = [0, 1, 0, 0], REC = [0, 0, 1, 0], else = [0, 0, 0, 1]
-    white_blood_cell_count = [6.1]  # 单位: *109/L
-    red_blood_cell_count = [4.19]  # 单位: *109/L
-    hemoglobin = [124.0]  # 单位: g/L
-    platelet_concentration = [153.0]  # 单位: *109/L
-    neutrophil_count = [3.8]  # 单位: *109/L
-    lymphocyte_count = [1.9]  # 单位: *109/L
-    monocyte_count = [0.3]  # 单位: *109/L
-    red_cell_volumn_distribution_width = [14.4]
-    plateletcrit = [0.2]
-    mean_platelet_volume = [11.3]
-    albumin = [42.8]
-    globulin = [20.8]
-    albumin_globulin_ratio = [2.1]
-    blood_glucose = [5.03]
-    triglyceride = [1.23]
-    cholesterol = [4.42]
-    high_density_lipoprotein = [1.61]
-    low_density_lipoprotein = [2.46]
-    carcinoembryonic_antigen = [0.2]
-    carcinoembryonic_antigen_199 = [2.29]
-    carcinoembryonic_antigen_125 = [1.08]
+    drinking_history = clinical_data['drinking_history']  # without = [1, 0, 0, 0]; sometimes = [0, 1, 0, 0]; frequently = [0, 0, 1, 0]; else = [0, 0, 0, 1]
+    family_history_of_tumor = clinical_data['family_history_of_tumor']  # without = 0, with = 1
+    pathological_stage = clinical_data['pathological_stage']  # I = [1, 0, 0, 0, 0], II = [0, 1, 0, 0, 0]; III = [0, 0, 1, 0, 0]; IV = [0, 0, 0, 1, 0]; else = [0, 0, 0, 0, 1]
+    perineural_invasion = clinical_data['perineural_invasion']  # without = [1, 0, 0], with = [0, 1, 0], else = [0, 0, 1]
+    pathological_type = clinical_data['pathological_type']  # well = [1, 0, 0, 0], mix = [0, 1, 0, 0], poor = [0, 0, 1, 0], else = [0, 0, 0, 1]
+    position = clinical_data['position']  # RCC = [1, 0, 0, 0]; LCC = [0, 1, 0, 0], REC = [0, 0, 1, 0], else = [0, 0, 0, 1]
+    white_blood_cell_count = clinical_data['white_blood_cell_count']  # 单位: *109/L
+    red_blood_cell_count = clinical_data['red_blood_cell_count']  # 单位: *109/L
+    hemoglobin = clinical_data['hemoglobin']  # 单位: g/L
+    platelet_concentration = clinical_data['platelet_concentration']  # 单位: *109/L
+    neutrophil_count = clinical_data['neutrophil_count']  # 单位: *109/L
+    lymphocyte_count = clinical_data['lymphocyte_count']  # 单位: *109/L
+    monocyte_count = clinical_data['monocyte_count']  # 单位: *109/L
+    red_cell_volumn_distribution_width = clinical_data['red_cell_volumn_distribution_width']
+    plateletcrit = clinical_data['plateletcrit']
+    mean_platelet_volume = clinical_data['mean_platelet_volume']
+    albumin = clinical_data['albumin']
+    globulin = clinical_data['globulin']
+    albumin_globulin_ratio = clinical_data['albumin_globulin_ratio']
+    blood_glucose = clinical_data['blood_glucose']
+    triglyceride = clinical_data['triglyceride']
+    cholesterol = clinical_data['cholesterol']
+    high_density_lipoprotein = clinical_data['high_density_lipoprotein']
+    low_density_lipoprotein = clinical_data['low_density_lipoprotein']
+    carcinoembryonic_antigen = clinical_data['carcinoembryonic_antigen']
+    carcinoembryonic_antigen_199 = clinical_data['carcinoembryonic_antigen_199']
+    carcinoembryonic_antigen_125 = clinical_data['carcinoembryonic_antigen_125']
 
     # for shaolun designing the web server
-    clinical_data_2 = np.array(gender + age + history_of_diabetes + history_of_hypertension + smoking_history + drinking_history + family_history_of_tumor + pathological_stage + perineural_invasion + pathological_type + position + white_blood_cell_count
+    clinical_data = np.array(gender + age + history_of_diabetes + history_of_hypertension + smoking_history + drinking_history + family_history_of_tumor + pathological_stage + perineural_invasion + pathological_type + position + white_blood_cell_count
                                + red_blood_cell_count + hemoglobin + platelet_concentration + neutrophil_count + lymphocyte_count + monocyte_count + red_cell_volumn_distribution_width + plateletcrit + mean_platelet_volume + albumin
                                + globulin + albumin_globulin_ratio + blood_glucose + triglyceride + cholesterol + high_density_lipoprotein + low_density_lipoprotein + carcinoembryonic_antigen + carcinoembryonic_antigen_199 + carcinoembryonic_antigen_125)
 
-    clinical_data = np.array([0, 64.0, 0, 1, 1, 0, 0, 0, 1, 0,   0, 1, 0, 0, 0,   0, 0, 1,   1, 0, 0, 0,   1, 0, 0, 0,  6.1, 4.19, 124.0, 153.0, 3.8, 1.9, 0.3, 14.4, 0.2, 11.3, 42.8, 20.8, 2.1, 5.03, 1.23, 4.42, 1.61, 2.46, 0.2, 2.29, 1.08])
+    # clinical_data = np.array([0, 64.0, 0, 1, 1, 0, 0, 0, 1, 0,   0, 1, 0, 0, 0,   0, 0, 1,   1, 0, 0, 0,   1, 0, 0, 0,  6.1, 4.19, 124.0, 153.0, 3.8, 1.9, 0.3, 14.4, 0.2, 11.3, 42.8, 20.8, 2.1, 5.03, 1.23, 4.42, 1.61, 2.46, 0.2, 2.29, 1.08])
 
     max = np.array([1.0000e+00, 8.9000e+01, 1.0000e+00, 1.0000e+00, 1.0000e+00, 1.0000e+00,
         1.0000e+00, 1.0000e+00, 1.0000e+00, 1.0000e+00, 1.0000e+00, 1.0000e+00,
